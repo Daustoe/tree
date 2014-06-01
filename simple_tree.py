@@ -53,7 +53,7 @@ class Node(object):
                 left = self.left.count()
             if self.right is not None:
                 right = self.right.count()
-            return left + right
+            return left + right  1
 
     def search(self, data):
         left = False
