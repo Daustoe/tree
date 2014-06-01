@@ -13,11 +13,13 @@ class Node(object):
                 self.left.insert(data)
             else:
                 self.left = Node(data)
+                return 1
         else:
             if self.right is not None:
                 self.right.insert(data)
             else:
                 self.right = Node(data)
+                return 1
 
     def count(self):
         if self.left is None and self.right is None:
