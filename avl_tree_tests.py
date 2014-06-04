@@ -38,9 +38,11 @@ class TreeTests(unittest.TestCase):
         self.assertListEqual([1, 3, 4, 5], self.tree.traverse('cargo'))
         self.assertListEqual([0, 1, 1, 0], self.tree.traverse('balance'))
         self.tree.insert(0)
-
-        print self.tree.traverse('cargo')
         self.assertEqual(self.tree.root.cargo, 3)
+        self.assertListEqual([0, 1, 3, 4, 5], self.tree.traverse('cargo'))
+        self.assertListEqual([0, 0, 0, 1, 0], self.tree.traverse('balance'))
+        print self.tree.traverse('balance')
+        print self.tree.traverse('cargo')
 
 if __name__ == '__main__':
     unittest.main()

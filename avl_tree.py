@@ -56,7 +56,10 @@ class Node(object):
 
     def rotate_right(self):
         # need to rebalance these rotated nodes
-        rotato = self.left
+        rotato = self.left.cargo
+        self.left.cargo = self.cargo
+        self.cargo = rotato
+        """
         self.left = rotato.right
         if self.left is not None:
             self.left.parent = self
@@ -68,6 +71,7 @@ class Node(object):
         print rotato.balance
         rotato.balance -= 1
         self.balance = 0
+        """
 
     def rotate_left(self):
         print self.balance
