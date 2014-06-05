@@ -1,29 +1,45 @@
 __author__ = 'Clayton Powell'
 
 
+class Leaf(object):
+    def __init__(self):
+        self.cargo = 'dummy'
+
+    def insert(self):
+        pass
+
+
 class Node(object):
     def __init__(self, data):
-        self.left = None
-        self.right = None
+        self.left = Leaf()
+        self.right = Leaf()
         self.parent = None
         self.cargo = data
         self.balance = 0
 
     def insert(self, data):
-        if self.cargo > data:
-            self.balance += 1
+        if data < self.cargo:
             if self.left is not None:
-                self.left.insert(data)
+                change = self.left.insert(data)
+                self.balance -= change
             else:
                 self.left = Node(data)
                 self.left.parent = self
+                self.balance = -1
+                if self.right is None:
+                    return 1
+                else:
+                    return 0
         else:
-            self.balance -= 1
             if self.right is not None:
-                self.right.insert(data)
+                self.balance += self.right.insert(data)
             else:
                 self.right = Node(data)
                 self.right.parent = self
+                if self.left is None:
+                    return 1
+                else:
+                    return 0
         self.check_balance()
 
     def count(self):
@@ -39,7 +55,7 @@ class Node(object):
             return left + right + 1
 
     def check_balance(self):
-        if self.balance == 2:  # left branch is deeper than right
+        if self.balance == -2:  # left branch is deeper than right
             if self.left is not None and self.left.balance == -1:  # Left child is deeper on right
                 self.left.rotate_left()
             self.rotate_right()
@@ -54,26 +70,20 @@ class Node(object):
         else:
             self.right = node
 
-    def rotate_right(self):
-        # need to rebalance these rotated nodes
-        rotato = self.left.cargo
-        self.left.cargo = self.cargo
-        self.cargo = rotato
-        """
+    def rotate_left(self):
+        rotato = self.left
         self.left = rotato.right
         if self.left is not None:
             self.left.parent = self
         rotato.parent = self.parent
-        if type(self.parent) is not 'AvlTree':
-            self.parent.point_to_me(rotato)
+        self.parent.point_to_me(rotato)
         self.parent = rotato
         rotato.right = self
         print rotato.balance
         rotato.balance -= 1
         self.balance = 0
-        """
 
-    def rotate_left(self):
+    def rotate_right(self):
         print self.balance
         rotato = self.right  # rotation potato # child node being rotated up # hot potato
         self.right = rotato.left
