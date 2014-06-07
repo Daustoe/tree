@@ -1,66 +1,52 @@
 __author__ = 'Clayton Powell'
 
 
-class Leaf(object):
-    def __init__(self):
-        self.cargo = 'dummy'
-
-    def insert(self):
-        pass
-
-
 class Node(object):
     def __init__(self, data):
-        self.left = Leaf()
-        self.right = Leaf()
+        self.left = None
+        self.right = None
         self.parent = None
         self.cargo = data
         self.balance = 0
+        self.height = 0
 
     def insert(self, data):
         if data < self.cargo:
-            if self.left is not None:
-                change = self.left.insert(data)
-                self.balance -= change
+            if self.left:
+                self.left.insert(data)
+                self.calculate_height()
             else:
                 self.left = Node(data)
                 self.left.parent = self
-                self.balance = -1
-                if self.right is None:
-                    return 1
-                else:
-                    return 0
+                self.height = max(1, self.height)
         else:
-            if self.right is not None:
-                self.balance += self.right.insert(data)
+            if self.right:
+                self.right.insert(data)
+                self.calculate_height()
             else:
                 self.right = Node(data)
                 self.right.parent = self
-                if self.left is None:
-                    return 1
-                else:
-                    return 0
-        self.check_balance()
+                self.height = max(1, self.height)
+        self.calculate_balance()
+        self.check_for_rotation()
+        return self.height
 
-    def count(self):
-        if self.left is None and self.right is None:
-            return 1
+    def is_leaf(self):
+        return self.height == 0
+
+    def calculate_balance(self):
+        if self.is_leaf():
+            self.balance = 0
         else:
-            left = 0
-            right = 0
-            if self.left is not None:
-                left = self.left.count()
-            if self.right is not None:
-                right = self.right.count()
-            return left + right + 1
+            self.balance = (self.left.height + 1 if self.left else 0) - (self.right.height + 1 if self.right else 0)
 
-    def check_balance(self):
-        if self.balance == -2:  # left branch is deeper than right
-            if self.left is not None and self.left.balance == -1:  # Left child is deeper on right
+    def check_for_rotation(self):
+        if self.balance == 2:  # left branch
+            if self.left and self.left.calculate_balance == -1:  # Left child is deeper on right
                 self.left.rotate_left()
             self.rotate_right()
-        elif self.balance == -2:  # right branch is deeper than left
-            if self.right is not None and self.right.balance == 1:  # right child is deeper on the left
+        elif self.balance == -2:  # left branch is deeper than left
+            if self.right and self.right.calculate_balance == 1:  # right child is deeper on the left
                 self.right.rotate_right()
             self.rotate_left()
 
@@ -71,6 +57,7 @@ class Node(object):
             self.right = node
 
     def rotate_left(self):
+        print "here"
         rotato = self.left
         self.left = rotato.right
         if self.left is not None:
@@ -84,19 +71,35 @@ class Node(object):
         self.balance = 0
 
     def rotate_right(self):
-        print self.balance
-        rotato = self.right  # rotation potato # child node being rotated up # hot potato
-        self.right = rotato.left
-        rotato.parent = self.parent
-        self.parent = rotato
-        rotato.left = self
+        # switch cargo values with self.left
+        cargo = self.left.cargo
+        self.left.cargo = self.cargo
+        self.cargo = cargo
+
+        # temp variable holding moving node (self.left)
+        rotato = self.left
+        self.left = rotato.left
+
+        # switch moving node's right branch to be my left,
+        rotato.left = rotato.right
+        rotato.right = self.right
+        self.right = rotato
+
+        # handle new heights/balances
+        rotato.calculate_height()
+        rotato.calculate_balance()
+        self.calculate_height()
+        self.calculate_balance()
+
+    def calculate_height(self):
+        self.height = max(self.left.height if self.left else -1, self.right.height if self.right else -1) + 1
 
     def traverse(self, attribute):
         left = []
         right = []
-        if self.left is not None:
+        if self.left:
             left = self.left.traverse(attribute)
-        if self.right is not None:
+        if self.right:
             right = self.right.traverse(attribute)
         return left + [getattr(self, attribute)] + right
 
@@ -104,12 +107,10 @@ class Node(object):
 class AvlTree(object):
     def __init__(self):
         self.root = None
+        self.count = 0
 
     def __len__(self):
-        if self.root is None:
-            return 0
-        else:
-            return self.root.count()
+        return self.count
 
     def __str__(self):
         return 'AvlTree'
@@ -118,13 +119,13 @@ class AvlTree(object):
         self.root = node
 
     def insert(self, data):
-        if self.root is None:
+        if self.root:
+            self.root.insert(data)
+        else:
             self.root = Node(data)
             self.root.parent = self
-        else:
-            self.root.insert(data)
+        self.count += 1
 
     def traverse(self, attribute):
-        print hasattr(self.root, attribute)
         if hasattr(self.root, attribute):
             return self.root.traverse(attribute)
