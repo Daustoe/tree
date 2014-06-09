@@ -42,11 +42,11 @@ class Node(object):
 
     def check_for_rotation(self):
         if self.balance == 2:  # left branch
-            if self.left and self.left.calculate_balance == -1:  # Left child is deeper on right
+            if self.left and self.left.balance == -1:  # Left child is deeper on right
                 self.left.rotate_left()
             self.rotate_right()
         elif self.balance == -2:  # left branch is deeper than left
-            if self.right and self.right.calculate_balance == 1:  # right child is deeper on the left
+            if self.right and self.right.balance == 1:  # right child is deeper on the left
                 self.right.rotate_right()
             self.rotate_left()
 
@@ -57,35 +57,28 @@ class Node(object):
             self.right = node
 
     def rotate_left(self):
-        print "here"
-        rotato = self.left
-        self.left = rotato.right
-        if self.left is not None:
-            self.left.parent = self
-        rotato.parent = self.parent
-        self.parent.point_to_me(rotato)
-        self.parent = rotato
-        rotato.right = self
-        print rotato.balance
-        rotato.balance -= 1
-        self.balance = 0
+        cargo = self.right.cargo
+        self.right.cargo = self.cargo
+        self.cargo = cargo
+        rotato = self.right
+        self.right = rotato.right
+        rotato.right = rotato.left
+        rotato.left = self.left
+        self.left = rotato
+        rotato.calculate_height()
+        rotato.calculate_balance()
+        self.calculate_height()
+        self.calculate_balance()
 
     def rotate_right(self):
-        # switch cargo values with self.left
         cargo = self.left.cargo
         self.left.cargo = self.cargo
         self.cargo = cargo
-
-        # temp variable holding moving node (self.left)
         rotato = self.left
         self.left = rotato.left
-
-        # switch moving node's right branch to be my left,
         rotato.left = rotato.right
         rotato.right = self.right
         self.right = rotato
-
-        # handle new heights/balances
         rotato.calculate_height()
         rotato.calculate_balance()
         self.calculate_height()
