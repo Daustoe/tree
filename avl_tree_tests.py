@@ -1,7 +1,5 @@
 import unittest
 import avl_tree
-import cProfile
-import pstats
 
 
 class NodeTests(unittest.TestCase):
@@ -15,14 +13,6 @@ class NodeTests(unittest.TestCase):
 class TreeTests(unittest.TestCase):
     def setUp(self):
         self.tree = avl_tree.AvlTree()
-        self.profile = cProfile.Profile()
-        self.profile.enable()
-
-    def tearDown(self):
-        p = pstats.Stats(self.profile)
-        p.strip_dirs()
-        p.sort_stats('cumtime')
-        p.print_stats()
 
     def test_creation(self):
         self.assertIsNotNone(self.tree)
@@ -86,7 +76,11 @@ class TreeTests(unittest.TestCase):
         self.assertListEqual([9, 12, 14, 17, 19, 23, 50, 54, 67, 72, 76], self.tree.traverse('cargo'))
 
     def test_removal(self):
-        pass
+        self.tree.insert(1)
+        self.assertEqual(len(self.tree), 1)
+        self.tree.remove(1)
+        self.assertEqual(len(self.tree), 0)
+        self.assertEqual(self.tree.root, None)
 
 if __name__ == '__main__':
     unittest.main()

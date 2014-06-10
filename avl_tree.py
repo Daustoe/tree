@@ -96,6 +96,19 @@ class Node(object):
             right = self.right.traverse(attribute)
         return left + [getattr(self, attribute)] + right
 
+    def remove(self, data):
+        if self.cargo == data:
+            if self.is_leaf() or self.height == 1:
+                pass
+        elif self.left and data < self.cargo:
+            return self.left.remove(data)
+        elif self.right and data >= self.cargo:
+            return self.right.remove(data)
+        else:
+            return False
+
+
+
 
 class AvlTree(object):
     def __init__(self):
@@ -122,3 +135,8 @@ class AvlTree(object):
     def traverse(self, attribute):
         if hasattr(self.root, attribute):
             return self.root.traverse(attribute)
+
+    def remove(self, data):
+        if self.root:
+            if self.root.remove(data):
+                self.count -= 1
