@@ -172,11 +172,26 @@ class Node(object):
         else:
             return False
 
+    def least(self):
+        if self.left is None:
+            return self.cargo
+        else:
+            return self.left.least()
+
+    def greatest(self):
+        if self.right is None:
+            return self.cargo
+        else:
+            return self.right.greatest()
+
 
 class AvlTree(object):
-    def __init__(self):
-        self.root = None
+    def __init__(self, cargo=None):
         self.count = 0
+        self.root = None
+        if cargo:
+            self.root = Node(cargo)
+            self.count = 1
         self.cargo = 'head'
 
     def __len__(self):
@@ -184,6 +199,12 @@ class AvlTree(object):
 
     def __str__(self):
         return 'AvlTree:\n' + self.root.get_representation()
+
+    def is_empty(self):
+        return self.root is None
+
+    def is_non_empty(self):
+        return self.root is not None
 
     def point_to(self, node):
         self.root = node
@@ -207,3 +228,15 @@ class AvlTree(object):
         if self.root:
             if self.root.remove(data):
                 self.count -= 1
+
+    def least(self):
+        if self.root:
+            return self.root.least()
+        else:
+            return None
+
+    def greatest(self):
+        if self.root:
+            return self.root.greatest()
+        else:
+            return None
