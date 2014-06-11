@@ -184,6 +184,16 @@ class Node(object):
         else:
             return self.right.greatest()
 
+    def search(self, key):
+        if key == self.cargo:
+            return True
+        elif key < self.cargo and self.left:
+            return self.left.search(key)
+        elif key >= self.cargo and self.right:
+            return self.right.search(key)
+        else:
+            return False
+
 
 class AvlTree(object):
     def __init__(self, cargo=None):
@@ -228,6 +238,12 @@ class AvlTree(object):
         if self.root:
             if self.root.remove(data):
                 self.count -= 1
+
+    def search(self, key):
+        if self.root:
+            return self.root.search(key)
+        else:
+            return False
 
     def least(self):
         if self.root:

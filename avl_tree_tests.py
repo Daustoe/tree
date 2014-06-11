@@ -66,6 +66,9 @@ class ComplexTreeTests(unittest.TestCase):
     def test_greatest(self):
         self.assertEqual(self.tree.greatest(), 76)
 
+    def test_search(self):
+        self.assertTrue(self.tree.search(9))
+
 
 class TreeTests(unittest.TestCase):
     def setUp(self):
