@@ -14,12 +14,12 @@ http://en.wikipedia.org/wiki/AVL_tree
     -removal
     -enumeration
         --can enumerate any attribute of the Node in order.
+    -search
     -least
     -greatest
     -singleton creation (create avl tree with one node)
 
     Functionality that I want to add:
-    -search
     -comparison between trees
     -different types of enumeration
     -graft (insert another tree)
