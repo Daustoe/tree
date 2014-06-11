@@ -10,6 +10,24 @@ class Node(object):
         self.balance = 0
         self.height = 0
 
+    def get_representation(self):
+        results = 'Node:\t\t\t' + str(self)
+        results += '\n\tParent:\t\t' + str(self.parent.cargo)
+        results += '\n\tLeft:\t\t' + str(self.left)
+        results += '\n\tRight:\t\t' + str(self.right)
+        results += '\n\tBalance:\t' + str(self.balance)
+        results += '\n\tHeight:\t\t' + str(self.height) + '\n\n'
+        left = ""
+        right = ''
+        if self.left:
+            left = self.left.get_representation()
+        if self.right:
+            right = self.right.get_representation()
+        return left + results + right
+
+    def __str__(self):
+        return str(self.cargo)
+
     def insert(self, data):
         if data < self.cargo:
             if self.left:
@@ -23,7 +41,6 @@ class Node(object):
             else:
                 self.right = Node(data)
                 self.right.parent = self
-        self.calculate_height()
         self.rebalance()
         self.rotation_check()
 
@@ -31,6 +48,7 @@ class Node(object):
         return self.height == 0
 
     def rebalance(self):
+        self.calculate_height()
         if self.is_leaf():
             self.balance = 0
         else:
@@ -53,32 +71,34 @@ class Node(object):
             self.right = node
 
     def rotate_left(self):
-        cargo = self.right.cargo
-        self.right.cargo = self.cargo
-        self.cargo = cargo
         rotato = self.right
-        self.right = rotato.right
-        rotato.right = rotato.left
-        rotato.left = self.left
-        self.left = rotato
-        rotato.calculate_height()
-        rotato.rebalance()
-        self.calculate_height()
+        self.link(rotato.left, 'right')
+        parent = self.parent
+        rotato.link(self, 'left')
+        rotato.parent = parent
+        parent.point_to(rotato)
         self.rebalance()
+        rotato.rebalance()
 
     def rotate_right(self):
-        cargo = self.left.cargo
-        self.left.cargo = self.cargo
-        self.cargo = cargo
         rotato = self.left
-        self.left = rotato.left
-        rotato.left = rotato.right
-        rotato.right = self.right
-        self.right = rotato
-        rotato.calculate_height()
-        rotato.rebalance()
-        self.calculate_height()
+        self.link(rotato.right, 'left')
+        parent = self.parent
+        rotato.link(self, 'right')
+        rotato.parent = parent
+        parent.point_to(rotato)
         self.rebalance()
+        rotato.rebalance()
+
+    def link(self, node, side):
+        if side == 'left':
+            self.left = node
+            if node:
+                node.parent = self
+        else:
+            self.right = node
+            if node:
+                node.parent = self
 
     def calculate_height(self):
         self.height = max(self.left.height if self.left else -1, self.right.height if self.right else -1) + 1
@@ -111,9 +131,14 @@ class Node(object):
             data, remove, branch = self.left.take_leftmost()
             if remove:
                 self.left = branch
-            self.calculate_height()
-            self.rebalance()
+                self.rebalance()
             return data, False, None
+
+    def limb(self):
+        if self.right:
+            return self.right
+        else:
+            return self.left
 
     def remove(self, data):
         if self.cargo == data:
@@ -121,19 +146,29 @@ class Node(object):
                 self.parent.remove_me(self)
                 return True
             elif self.is_limb():
-                self.parent.point_to(self.right)
+                child = self.limb()
+                self.parent.point_to(child)
+                child.parent = self.parent
                 return True
             else:
                 self.cargo, remove, branch = self.right.take_leftmost()
                 if remove:
                     self.right = branch
-                self.calculate_height()
                 self.rebalance()
+                self.rotation_check()
                 return True
         elif self.left and data < self.cargo:
-            return self.left.remove(data)
+            result = self.left.remove(data)
+            if result:
+                self.rebalance()
+                self.rotation_check()
+            return result
         elif self.right and data >= self.cargo:
-            return self.right.remove(data)
+            result = self.right.remove(data)
+            if result:
+                self.rebalance()
+                self.rotation_check()
+            return result
         else:
             return False
 
@@ -142,12 +177,13 @@ class AvlTree(object):
     def __init__(self):
         self.root = None
         self.count = 0
+        self.cargo = 'head'
 
     def __len__(self):
         return self.count
 
     def __str__(self):
-        return 'AvlTree'
+        return 'AvlTree:\n' + self.root.get_representation()
 
     def point_to(self, node):
         self.root = node
